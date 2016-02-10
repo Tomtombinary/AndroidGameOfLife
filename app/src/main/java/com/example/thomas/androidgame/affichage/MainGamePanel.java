@@ -22,10 +22,8 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
     Paint p;
     private Explosion[] explosion;
     private LifeGrid grid;
+    private HUD hud;
     int index = 0;
-
-
-    private long touchTime = 0;
 
     public MainGamePanel(Context context) {
         super(context);
@@ -42,6 +40,7 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
         this.thread.setRunning(true);
         this.thread.start();
         this.grid = new LifeGrid(getWidth(),getHeight());
+        this.hud  = new HUD(this.grid,getWidth(),getHeight());
         /*Log.d("W", ":" + getWidth());
         Log.d("H", ":" + getHeight());*/
     }
@@ -69,12 +68,10 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
     public boolean onTouchEvent(MotionEvent event){
         if(event.getAction() == MotionEvent.ACTION_MOVE || event.getAction() == MotionEvent.ACTION_DOWN)
         {
-            if(touchTime == 0) {
+            this.hud.onTouchEvent(event);
                 this.x = event.getX();
                 this.y = event.getY();
                 this.grid.handleOnTouch(x, y);
-                touchTime = 5;
-            }
             /*
             explosion[index] = new Explosion(x,y);
             index++;
@@ -87,6 +84,7 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
     public void render(Canvas canvas){
         draw(canvas);
         this.grid.draw(canvas);
+        this.hud.draw(canvas);
         p.setColor(Color.RED);
         for(int i=0;i < index;i++)
             explosion[i].draw(canvas);
@@ -102,8 +100,6 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
             }
         }
         this.grid.update();
-        if(touchTime > 0){
-            touchTime--;
-        }
+        this.hud.update();
     }
 }

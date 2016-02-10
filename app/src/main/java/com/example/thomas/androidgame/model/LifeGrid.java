@@ -5,10 +5,13 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.Log;
 
+import com.example.thomas.androidgame.affichage.SpinBar;
+import com.example.thomas.androidgame.affichage.SpinnerListener;
+
 /**
  * Created by thomas on 09/02/16.
  */
-public class LifeGrid extends GameObject {
+public class LifeGrid extends GameObject implements SpinnerListener{
 
     public static final int SIZE = 40;
     private int lines,columns;
@@ -19,6 +22,10 @@ public class LifeGrid extends GameObject {
 
     private Paint p;
     private Paint p2;
+
+    private long touchTime = 0;
+    private long UPDATE = 10;
+    private long update_time = 0;
 
     public LifeGrid(int width,int height) {
         super(0,0);
@@ -37,16 +44,28 @@ public class LifeGrid extends GameObject {
 
     @Override
     public void update(){
-        if(!pause)
-            this.actualiser();
+        if(!pause) {
+            if(update_time > UPDATE) {
+                this.actualiser();
+                this.update_time = 0;
+            }else
+                this.update_time++;
+        }
+        if(touchTime > 0)touchTime--;
+    }
+
+    @Override
+    public void onProgess(SpinBar bar, float progress) {
+        UPDATE = (long) (progress * 10);
     }
 
     @Override
     public void draw(Canvas canvas) {
         for(int i = 0;i < this.lines;i++){
             for(int j=0; j < this.columns; j++){
-                if(this.matrix[i][j])
-                    canvas.drawRect(j*SIZE,i*SIZE,j*SIZE+SIZE,i*SIZE+SIZE,p2);
+                if(this.matrix[i][j]) {
+                    canvas.drawRect(j * SIZE, i * SIZE, j * SIZE + SIZE, i * SIZE + SIZE, p2);
+                }
             }
         }
 
@@ -57,19 +76,27 @@ public class LifeGrid extends GameObject {
         for(int i = 0;i < this.columns + 1;i++)
             canvas.drawLine(i*SIZE,0,i*SIZE,height,p);
         canvas.drawLine(this.columns*SIZE - 1,0,this.columns*SIZE - 1,height,p);
-        if(pause)
-            canvas.drawText("START",this.width/2,this.height + SIZE,p);
-        else
-            canvas.drawText("PAUSE",this.width/2,this.height + SIZE,p);
     }
 
+    public void pause(){
+        this.pause = true;
+    }
+
+    public void start(){
+        this.pause = false;
+    }
     public void handleOnTouch(float x,float y){
-        int l = (int)(y/(float)SIZE);
-        int c = (int)(x/(float)SIZE);
-        if(l < this.lines && c < this.columns)
-            this.matrix[l][c] = !matrix[l][c];
-        if(l >= this.lines || c >= this.columns)
-            this.pause = !this.pause;
+        if(touchTime == 0) {
+            int l = (int) (y / (float) SIZE);
+            int c = (int) (x / (float) SIZE);
+            if (l < this.lines && c < this.columns) {
+                this.matrix[l][c] = !matrix[l][c];
+            }
+            touchTime = 5;
+        }
+
+        /*if(l >= this.lines || c >= this.columns)
+            this.pause = !this.pause;*/
         //Log.d("OnTouch", "L:" + l + "C:" + c);
     }
 
