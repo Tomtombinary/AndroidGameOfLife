@@ -11,7 +11,8 @@ import java.util.ArrayList;
 /**
  * Created by thomas on 08/02/16.
  */
-public class MainThread  extends Thread{
+public class MainThread  extends Thread {
+
     private final static int MAX_FPS = 50;
     private final static int MAX_FRAME_SKIPS = 5;
     private final static int FRAME_PERIOD = 1000/MAX_FPS;
